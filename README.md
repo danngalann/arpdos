@@ -35,6 +35,10 @@ To install scapy open a terminal and type
 ```
 pip3 install scapy
 ```
+## Disclaimer
+This project is a proof of concept for testing and educational purposes.
+It's meant to be used against networks you have permission to tamper with.
+I don't take any responsibility for what you do with this program.
 
 ## License
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE) for details
