@@ -1,7 +1,7 @@
 # arpDoS
 A python script to DoS every device on the network (except yourself ;))
 
-## How it works
+## How it works _(roughly)_
 * Use ARP to scan the whole network searching for devices
 * Store all those devices in a list
 * Erase some devices from that list (you and those on the exceptions file)
