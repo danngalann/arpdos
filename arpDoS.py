@@ -12,6 +12,37 @@ myIP = socket.gethostbyname(socket.gethostname())
 conf.verb=0
 exceptions = []
 
+# Checks for arguments and privileges
+def checks():
+    # Check OS
+    if sys.platform.lower() != "linux":
+        print("This script only works in Linux!")
+        sys.exit(0)
+
+    # Check root
+    if os.getuid() != 0:
+        print("Must run as root!")
+        sys.exit(0)
+
+    # Check interface
+    if not args.interface:
+        print("No interface given. Exiting...")
+        sys.exit(0)
+
+    # Check network
+    if not args.network:
+        print("No network given. Exiting...")
+        sys.exit(0)
+
+    # Check gateway
+    if not args.gateway:
+        print("No gateway given. Exiting...")
+        sys.exit(0)
+
+    # Check exceptions
+    if args.file:
+        getExceptions(args.file)
+
 # Gets MAC from IP
 def getMAC(ip, interface):
     ans, unans = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=ip), timeout=2, iface=interface, inter=0.2)
@@ -66,10 +97,10 @@ def scan(network, interface):
         print("User interrupt. Exitting...")
         sys.exit(0)
 
+# Get all IPs from the exceptions file
 def getExceptions(file):
     try:
         lines = open(file)
-        # Get all IPs from the exceptions file
         for line in lines.readlines():
             exceptions.append(line.rstrip())
 
@@ -128,32 +159,8 @@ parser.add_argument("-f", "--file", help="List of IPs to exclude from the attack
 parser.add_argument("-m", "--mitm", action="store_true", help="Use MITM instead")
 args = parser.parse_args()
 
-# Check OS
-if sys.platform.lower() != "linux":
-    print("This script only works in Linux!")
-    sys.exit(0)
-
-# Check root
-if os.getuid() != 0:
-    print("Must run as root!")
-    sys.exit(0)
-
-# Check interface
-if not args.interface:
-    print("No interface given. Exiting...")
-    sys.exit(-1)
-
-# Check network
-if not args.network:
-    print("No network given. Exiting...")
-
-# Check gateway
-if not args.gateway:
-    print("No gateway given. Exiting...")
-
-# Check exceptions
-if args.file:
-    getExceptions(args.file)
+#Run checks
+checks()
 
 interface = args.interface
 network = args.network
