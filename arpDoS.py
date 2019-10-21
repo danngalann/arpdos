@@ -1,6 +1,6 @@
 import argparse, random, socket, sys, time, os
 try:
-    from scapy.all import Ether, srp, conf, ARP, send
+    from scapy.all import Ether, srp, conf, ARP, send, get_if_hwaddr
 except ImportError:
     print("Scapy could not be imported.")
     print("Make sure to 'pip3 install scapy'")
